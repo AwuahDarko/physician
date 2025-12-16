@@ -7,9 +7,9 @@ Phone/WhatsApp: +233553567136
 
 ## Screenshots
 
-![Alt text](/images/sky.PNG)
+![Alt text](./images/sky.PNG)
 
-![Alt text](/images/sky2.PNG)
+![Alt text](./images/sky2.PNG)
 
-![Alt text](/images/sky3.PNG)
+![Alt text](./images/sky3.PNG)
 
