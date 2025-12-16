@@ -1,0 +1,10 @@
+Flask==2.3.3
+mysql-connector-python==8.2.0
+sentence-transformers==2.2.2
+ollama==0.1.34
+numpy==1.24.3
+scikit-learn==1.3.1
+torch==2.0.1
+transformers==4.33.2
+rank-bm25==0.2.2
+python-dotenv==1.0.0

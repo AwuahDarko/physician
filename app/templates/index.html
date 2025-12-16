@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physician Assistant</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #14b8a6;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.8);
+            --glass-border: rgba(148, 163, 184, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Top navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--text-primary);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85em;
+            color: white;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .btn-logout {
+            padding: 8px 14px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            color: #f87171;
+            font-size: 0.85em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-history {
+            padding: 8px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-history:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+        }
+
+        /* History Panel */
+        .history-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .history-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .history-panel {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 420px;
+            max-width: 100%;
+            height: 100vh;
+            background: var(--bg-dark);
+            border-left: 1px solid var(--border);
+            z-index: 201;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-panel.show {
+            right: 0;
+        }
+
+        .history-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-header h2 {
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .history-close:hover {
+            color: var(--text-primary);
+        }
+
+        .history-actions {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .history-actions button {
+            padding: 8px 12px;
+            font-size: 0.8em;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .history-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+        }
+
+        .history-empty-icon {
+            font-size: 3em;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .history-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary);
+            transform: translateX(-4px);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .history-item-date {
+            font-size: 0.75em;
+            color: var(--text-muted);
+            background: var(--bg-card-hover);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .history-item-delete {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+
+        .history-item-delete:hover {
+            color: var(--danger);
+        }
+
+        .history-item-symptoms {
+            font-size: 0.9em;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .history-item-diseases {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .history-disease-tag {
+            font-size: 0.75em;
+            padding: 4px 10px;
+            background: rgba(13, 148, 136, 0.15);
+            border: 1px solid rgba(13, 148, 136, 0.3);
+            border-radius: 20px;
+            color: var(--primary-light);
+        }
+
+        .theme-toggle {
+            position: relative;
+            top: auto;
+            right: auto;
+        }
+
+        .welcome-msg {
+            margin-top: 8px;
+            color: var(--primary-light);
+            font-size: 1em;
+        }
+
+        .welcome-msg strong {
+            color: var(--text-primary);
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(13, 148, 136, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 80px; /* Account for fixed nav */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 40px rgba(13, 148, 136, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-card-hover);
+            transform: scale(1.05);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(13, 148, 136, 0.1);
+        }
+
+        /* Input groups */
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Common symptoms chips */
+        .symptom-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .symptom-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .symptom-chip:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .symptom-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Duration input */
+        .duration-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .duration-input {
+            width: 80px;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .duration-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .duration-unit {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1em;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(13, 148, 136, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+        }
+
+        /* Loading states */
+        .loading {
+            display: none;
+            padding: 40px 20px;
+        }
+
+        .loading-steps {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .loading-step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .loading-step.active {
+            opacity: 1;
+        }
+
+        .loading-step.completed {
+            opacity: 0.6;
+        }
+
+        .loading-step.completed .step-icon {
+            background: var(--success);
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .loading-step.active .step-icon {
+            background: var(--primary);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(13, 148, 136, 0); }
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-size: 0.85em;
+            color: var(--text-muted);
+        }
+
+        /* Error/Success messages */
+        .message {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        /* Results section */
+        .results-section {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .results-header h2 {
+            font-size: 1.5em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        /* Urgency alert */
+        .urgency-alert {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .urgency-alert.show {
+            display: flex;
+        }
+
+        .urgency-icon {
+            font-size: 1.5em;
+        }
+
+        .urgency-text {
+            flex: 1;
+        }
+
+        .urgency-text strong {
+            color: var(--danger);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-card);
+            padding: 6px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Disease cards */
+        .disease-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: slideInCard 0.4s ease backwards;
+        }
+
+        .disease-card:nth-child(1) { animation-delay: 0.1s; }
+        .disease-card:nth-child(2) { animation-delay: 0.2s; }
+        .disease-card:nth-child(3) { animation-delay: 0.3s; }
+        .disease-card:nth-child(4) { animation-delay: 0.4s; }
+        .disease-card:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInCard {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .disease-card:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .disease-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            cursor: pointer;
+        }
+
+        .disease-main {
+            flex: 1;
+        }
+
+        .disease-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+
+        .disease-name {
+            font-size: 1.15em;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: inline;
+        }
+
+        .disease-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        /* Match bar */
+        .match-bar-container {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .match-label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .match-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .match-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .match-bar-fill.high {
+            background: linear-gradient(90deg, var(--success) 0%, #34d399 100%);
+        }
+
+        .match-bar-fill.medium {
+            background: linear-gradient(90deg, var(--warning) 0%, #fbbf24 100%);
+        }
+
+        .match-bar-fill.low {
+            background: linear-gradient(90deg, var(--danger) 0%, #f87171 100%);
+        }
+
+        .match-percent {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 4px;
+        }
+
+        /* Confidence badge */
+        .confidence-badge {
+            padding: 8px 16px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .confidence-badge.high {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .confidence-badge.medium {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .confidence-badge.low {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .confidence-label {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .confidence-value {
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .confidence-badge.high .confidence-value { color: var(--success); }
+        .confidence-badge.medium .confidence-value { color: var(--warning); }
+        .confidence-badge.low .confidence-value { color: var(--danger); }
+
+        /* Expand icon */
+        .expand-icon {
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+            font-size: 1.2em;
+        }
+
+        .disease-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Disease details */
+        .disease-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .disease-card.expanded .disease-details {
+            max-height: 500px;
+        }
+
+        .disease-details-inner {
+            padding: 0 20px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .detail-section {
+            margin-top: 16px;
+        }
+
+        .detail-label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        /* AI Analysis tab */
+        .ai-analysis {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        /* Tests tab */
+        .tests-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .test-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .test-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(13, 148, 136, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .test-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .test-disease {
+            font-size: 0.85em;
+            color: var(--text-muted);
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .disclaimer-icon {
+            font-size: 1.3em;
+        }
+
+        .disclaimer-text {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .disclaimer-text strong {
+            color: var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .disease-header {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .disease-meta {
+                width: 100%;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: none;
+                width: calc(50% - 2px);
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <!-- History Panel -->
+    <div class="history-overlay" id="historyOverlay" onclick="toggleHistory()"></div>
+    <div class="history-panel" id="historyPanel">
+        <div class="history-header">
+            <h2>📜 Search History</h2>
+            <button class="history-close" onclick="toggleHistory()">×</button>
+        </div>
+        <div class="history-actions">
+            <button class="btn-secondary" onclick="loadHistory()" style="flex:1;">
+                🔄 Refresh
+            </button>
+            <button class="btn-secondary" onclick="clearAllHistory()" style="color: var(--danger);">
+                🗑️ Clear All
+            </button>
+        </div>
+        <div class="history-list" id="historyList">
+            <div class="history-empty">
+                <div class="history-empty-icon">📋</div>
+                <p>No search history yet</p>
+                <p style="font-size: 0.85em; margin-top: 8px;">Your searches will appear here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top navigation bar -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <span class="nav-brand">🏥 Physician Assistant</span>
+        </div>
+        <div class="nav-right">
+            {% if user %}
+            <button class="btn-history" onclick="toggleHistory()" title="Search History">
+                📜 History
+            </button>
+            <div class="user-info">
+                <span class="user-avatar">{{ user.username[0].upper() }}</span>
+                <span class="user-name">{{ user.username }}</span>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout" title="Logout">
+                🚪 Logout
+            </a>
+            {% endif %}
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                🌙
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">🏥</div>
+            <h1>Physician Assistant</h1>
+            <p>AI-powered symptom analysis and health insights</p>
+            {% if user %}
+            <p class="welcome-msg">Welcome back, <strong>{{ user.username }}</strong>!</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="message error" id="errorMessage"></div>
+            <div class="message success" id="successMessage"></div>
+
+            <div class="input-group">
+                <label for="symptoms">Describe Your Symptoms</label>
+                <textarea 
+                    id="symptoms" 
+                    placeholder="Describe what you're experiencing... (e.g., persistent headache for 3 days, mild fever, fatigue)"
+                    required
+                ></textarea>
+                <div class="symptom-chips" id="symptomChips">
+                    <span class="symptom-chip" data-symptom="fever">🌡️ Fever</span>
+                    <span class="symptom-chip" data-symptom="headache">🤕 Headache</span>
+                    <span class="symptom-chip" data-symptom="cough">😷 Cough</span>
+                    <span class="symptom-chip" data-symptom="fatigue">😴 Fatigue</span>
+                    <span class="symptom-chip" data-symptom="nausea">🤢 Nausea</span>
+                    <span class="symptom-chip" data-symptom="body aches">💪 Body Aches</span>
+                    <span class="symptom-chip" data-symptom="shortness of breath">🫁 Shortness of Breath</span>
+                    <span class="symptom-chip" data-symptom="sore throat">🗣️ Sore Throat</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Symptom Duration</label>
+                <div class="duration-group">
+                    <input type="number" class="duration-input" id="duration" placeholder="0" min="1">
+                    <select class="duration-unit" id="durationUnit">
+                        <option value="days">Days</option>
+                        <option value="hours">Hours</option>
+                        <option value="weeks">Weeks</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="geography">Your Region (helps improve accuracy)</label>
+                <select id="geography">
+                    <option value="">Select your region...</option>
+                    <option value="tropical">🌴 Tropical</option>
+                    <option value="temperate">🌳 Temperate</option>
+                    <option value="cold">❄️ Cold Climate</option>
+                    <option value="urban">🏙️ Urban</option>
+                    <option value="rural">🌾 Rural</option>
+                    <option value="coastal">🏖️ Coastal</option>
+                    <option value="mountainous">🏔️ Mountainous</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="predictBtn" onclick="predictDisease()">
+                    <span>🔍</span>
+                    <span>Analyze Symptoms</span>
+                </button>
+                <button class="btn-secondary" onclick="clearForm()">Clear</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-steps">
+                    <div class="loading-step" id="step1">
+                        <div class="step-icon">🔍</div>
+                        <div class="step-text">
+                            <div class="step-title">Analyzing Symptoms</div>
+                            <div class="step-desc">Processing your input...</div>
+                        </div>
+                    </div>
+                    <div class="loading-step" id="step2">
+                        <div class="step-icon">🗄️</div>
+                        <div class="step-text">
+                            <div class="step-title">Searching Database</div>
+                            <div class="step-desc">Finding matching conditions...</div>
+                        </div>
+                    </div>
+                    <div class="loading-step" id="step3">
+                        <div class="step-icon">🧠</div>
+                        <div class="step-text">
+                            <div class="step-title">AI Analysis</div>
+                            <div class="step-desc">Generating insights...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>
+                    <span>📋</span>
+                    Analysis Results
+                </h2>
+                <div class="results-actions">
+                    <button class="btn-icon" onclick="copyResults()" title="Copy results">
+                        📋 Copy
+                    </button>
+                    <button class="btn-icon" onclick="window.print()" title="Print results">
+                        🖨️ Print
+                    </button>
+                </div>
+            </div>
+
+            <div class="urgency-alert" id="urgencyAlert">
+                <span class="urgency-icon">⚠️</span>
+                <div class="urgency-text">
+                    <strong>Important:</strong> Some symptoms may require prompt medical attention. Please consult a healthcare professional.
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('matches')">Disease Matches</button>
+                <button class="tab" onclick="switchTab('analysis')">AI Analysis</button>
+                <button class="tab" onclick="switchTab('tests')">Recommended Tests</button>
+            </div>
+
+            <div class="tab-content active" id="matchesTab">
+                <div id="diseasesList"></div>
+            </div>
+
+            <div class="tab-content" id="analysisTab">
+                <div class="ai-analysis" id="aiAnalysis"></div>
+            </div>
+
+            <div class="tab-content" id="testsTab">
+                <div class="tests-list" id="testsList"></div>
+            </div>
+
+            <div class="disclaimer">
+                <span class="disclaimer-icon">⚠️</span>
+                <div class="disclaimer-text">
+                    <strong>Medical Disclaimer:</strong> This analysis is for informational purposes only and should not replace professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                btn.textContent = '🌙';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                btn.textContent = '☀️';
+            }
+        }
+
+        // Symptom chips
+        document.querySelectorAll('.symptom-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                const symptom = this.dataset.symptom;
+                const textarea = document.getElementById('symptoms');
+                const currentText = textarea.value.trim();
+                
+                if (this.classList.contains('active')) {
+                    // Remove symptom
+                    this.classList.remove('active');
+                    textarea.value = currentText.replace(new RegExp(',?\\s*' + symptom, 'gi'), '').replace(/^,\s*/, '');
+                } else {
+                    // Add symptom
+                    this.classList.add('active');
+                    textarea.value = currentText ? `${currentText}, ${symptom}` : symptom;
+                }
+            });
+        });
+
+        // Keyboard shortcut - Enter to submit
+        document.getElementById('symptoms').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                predictDisease();
+            }
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Loading steps animation
+        function animateLoadingSteps() {
+            const steps = ['step1', 'step2', 'step3'];
+            let currentStep = 0;
+
+            steps.forEach(s => {
+                document.getElementById(s).classList.remove('active', 'completed');
+            });
+
+            function nextStep() {
+                if (currentStep > 0) {
+                    document.getElementById(steps[currentStep - 1]).classList.remove('active');
+                    document.getElementById(steps[currentStep - 1]).classList.add('completed');
+                }
+                if (currentStep < steps.length) {
+                    document.getElementById(steps[currentStep]).classList.add('active');
+                    currentStep++;
+                }
+            }
+
+            nextStep();
+            const interval = setInterval(() => {
+                nextStep();
+                if (currentStep >= steps.length) {
+                    clearInterval(interval);
+                }
+            }, 1500);
+
+            return interval;
+        }
+
+        async function predictDisease() {
+            const symptoms = document.getElementById('symptoms').value.trim();
+            const geography = document.getElementById('geography').value;
+            const duration = document.getElementById('duration').value;
+            const durationUnit = document.getElementById('durationUnit').value;
+            const predictBtn = document.getElementById('predictBtn');
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('errorMessage');
+            const resultsSection = document.getElementById('resultsSection');
+
+            if (!symptoms) {
+                showMessage('error', 'Please describe your symptoms');
+                return;
+            }
+
+            // Build full symptom text with duration
+            let fullSymptoms = symptoms;
+            if (duration) {
+                fullSymptoms += ` for ${duration} ${durationUnit}`;
+            }
+
+            // Clear previous results
+            errorDiv.style.display = 'none';
+            resultsSection.style.display = 'none';
+
+            // Show loading state
+            loading.style.display = 'block';
+            predictBtn.disabled = true;
+            const loadingInterval = animateLoadingSteps();
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        symptoms: fullSymptoms,
+                        geography: geography || null
+                    })
+                });
+
+                const data = await response.json();
+
+                clearInterval(loadingInterval);
+
+                if (response.ok) {
+                    displayResults(data);
+                    resultsSection.style.display = 'block';
+                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    showMessage('error', data.error || 'Failed to get prediction');
+                }
+            } catch (error) {
+                clearInterval(loadingInterval);
+                showMessage('error', 'Error connecting to server: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                predictBtn.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            // Sort diseases by similarity score
+            const sortedDiseases = [...data.retrieved_diseases].sort((a, b) => 
+                b.similarity_score - a.similarity_score
+            );
+
+            // Check for urgency (high match scores might indicate serious conditions)
+            const hasUrgent = sortedDiseases.some(d => 
+                d.similarity_score > 0.8 || 
+                d.symptoms.toLowerCase().includes('emergency') ||
+                d.symptoms.toLowerCase().includes('severe')
+            );
+            document.getElementById('urgencyAlert').classList.toggle('show', hasUrgent);
+
+            // Disease cards
+            const diseasesList = document.getElementById('diseasesList');
+            diseasesList.innerHTML = '';
+
+            sortedDiseases.forEach((disease, index) => {
+                const matchPercent = (disease.similarity_score * 100).toFixed(1);
+                const confidenceLevel = disease.confidence_level.toLowerCase();
+                
+                const card = document.createElement('div');
+                card.className = 'disease-card';
+                card.innerHTML = `
+                    <div class="disease-header" onclick="toggleCard(this)">
+                        <div class="disease-main">
+                            <span class="disease-rank">${index + 1}</span>
+                            <span class="disease-name">${disease.disease}</span>
+                            <div class="disease-meta">
+                                <div class="match-bar-container">
+                                    <div class="match-label">Match Score</div>
+                                    <div class="match-bar">
+                                        <div class="match-bar-fill ${confidenceLevel}" style="width: ${matchPercent}%"></div>
+                                    </div>
+                                    <div class="match-percent">${matchPercent}%</div>
+                                </div>
+                                <div class="confidence-badge ${confidenceLevel}">
+                                    <div class="confidence-label">Confidence</div>
+                                    <div class="confidence-value">${disease.confidence_level}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="disease-details">
+                        <div class="disease-details-inner">
+                            <div class="detail-section">
+                                <div class="detail-label">🩺 Associated Symptoms</div>
+                                <div class="detail-text">${disease.symptoms}</div>
+                            </div>
+                            <div class="detail-section">
+                                <div class="detail-label">🔬 Recommended Tests</div>
+                                <div class="detail-text">${disease.exam_and_tests}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                diseasesList.appendChild(card);
+            });
+
+            // AI Analysis
+            document.getElementById('aiAnalysis').textContent = data.prediction;
+
+            // Consolidated tests list
+            const testsList = document.getElementById('testsList');
+            testsList.innerHTML = '';
+            const allTests = new Map();
+            
+            sortedDiseases.forEach(disease => {
+                const tests = disease.exam_and_tests.split(/[,;]/).map(t => t.trim()).filter(t => t);
+                tests.forEach(test => {
+                    if (!allTests.has(test.toLowerCase())) {
+                        allTests.set(test.toLowerCase(), { name: test, disease: disease.disease });
+                    }
+                });
+            });
+
+            allTests.forEach(test => {
+                const testItem = document.createElement('div');
+                testItem.className = 'test-item';
+                testItem.innerHTML = `
+                    <div class="test-icon">🧪</div>
+                    <div>
+                        <div class="test-name">${test.name}</div>
+                        <div class="test-disease">For: ${test.disease}</div>
+                    </div>
+                `;
+                testsList.appendChild(testItem);
+            });
+        }
+
+        function toggleCard(header) {
+            const card = header.closest('.disease-card');
+            card.classList.toggle('expanded');
+        }
+
+        function showMessage(type, message) {
+            const div = document.getElementById(type === 'error' ? 'errorMessage' : 'successMessage');
+            div.innerHTML = `<span>${type === 'error' ? '❌' : '✅'}</span><span>${message}</span>`;
+            div.style.display = 'flex';
+            setTimeout(() => { div.style.display = 'none'; }, 5000);
+        }
+
+        function clearForm() {
+            document.getElementById('symptoms').value = '';
+            document.getElementById('geography').value = '';
+            document.getElementById('duration').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.querySelectorAll('.symptom-chip').forEach(c => c.classList.remove('active'));
+            document.getElementById('symptoms').focus();
+        }
+
+        function copyResults() {
+            const analysis = document.getElementById('aiAnalysis').textContent;
+            navigator.clipboard.writeText(analysis).then(() => {
+                showMessage('success', 'Results copied to clipboard!');
+            });
+        }
+
+        // ============== History Functions ==============
+
+        function toggleHistory() {
+            const overlay = document.getElementById('historyOverlay');
+            const panel = document.getElementById('historyPanel');
+            
+            if (panel.classList.contains('show')) {
+                overlay.classList.remove('show');
+                panel.classList.remove('show');
+            } else {
+                overlay.classList.add('show');
+                panel.classList.add('show');
+                loadHistory();
+            }
+        }
+
+        async function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Loading...</div>';
+
+            try {
+                const response = await fetch('/history');
+                const data = await response.json();
+
+                if (data.history && data.history.length > 0) {
+                    historyList.innerHTML = '';
+                    data.history.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'history-item';
+                        div.onclick = (e) => {
+                            if (!e.target.classList.contains('history-item-delete')) {
+                                loadHistoryItem(item.id);
+                            }
+                        };
+
+                        const date = new Date(item.created_at);
+                        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                        const diseases = item.retrieved_diseases ? item.retrieved_diseases.slice(0, 3) : [];
+                        const diseaseTags = diseases.map(d => 
+                            `<span class="history-disease-tag">${d.disease}</span>`
+                        ).join('');
+
+                        div.innerHTML = `
+                            <div class="history-item-header">
+                                <span class="history-item-date">${dateStr}</span>
+                                <button class="history-item-delete" onclick="deleteHistoryItem(${item.id}, event)" title="Delete">🗑️</button>
+                            </div>
+                            <div class="history-item-symptoms">${item.symptoms}</div>
+                            <div class="history-item-diseases">${diseaseTags}</div>
+                        `;
+                        historyList.appendChild(div);
+                    });
+                } else {
+                    historyList.innerHTML = `
+                        <div class="history-empty">
+                            <div class="history-empty-icon">📋</div>
+                            <p>No search history yet</p>
+                            <p style="font-size: 0.85em; margin-top: 8px;">Your searches will appear here</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                historyList.innerHTML = `
+                    <div class="history-empty">
+                        <div class="history-empty-icon">❌</div>
+                        <p>Error loading history</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadHistoryItem(historyId) {
+            try {
+                const response = await fetch(`/history/${historyId}`);
+                const data = await response.json();
+
+                if (data.item) {
+                    // Close history panel
+                    toggleHistory();
+
+                    // Fill in the symptoms
+                    document.getElementById('symptoms').value = data.item.symptoms;
+                    if (data.item.geography) {
+                        document.getElementById('geography').value = data.item.geography;
+                    }
+
+                    // Display the results
+                    displayResults({
+                        prediction: data.item.prediction,
+                        retrieved_diseases: data.item.retrieved_diseases
+                    });
+                    document.getElementById('resultsSection').style.display = 'block';
+                    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+                    showMessage('success', 'Loaded from history');
+                }
+            } catch (error) {
+                showMessage('error', 'Error loading history item');
+            }
+        }
+
+        async function deleteHistoryItem(historyId, event) {
+            event.stopPropagation();
+            
+            if (!confirm('Delete this search from history?')) return;
+
+            try {
+                const response = await fetch(`/history/${historyId}`, { method: 'DELETE' });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    loadHistory();
+                    showMessage('success', 'History item deleted');
+                }
+            } catch (error) {
+                showMessage('error', 'Error deleting history item');
+            }
+        }
+
+        async function clearAllHistory() {
+            if (!confirm('Clear all search history? This cannot be undone.')) return;
+
+            try {
+                const response = await fetch('/history/clear', { method: 'DELETE' });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    loadHistory();
+                    showMessage('success', 'History cleared');
+                }
+            } catch (error) {
+                showMessage('error', 'Error clearing history');
+            }
+        }
+
+        // Focus on textarea when page loads
+        window.addEventListener('load', () => {
+            document.getElementById('symptoms').focus();
+        });
+    </script>
+</body>
+</html>
